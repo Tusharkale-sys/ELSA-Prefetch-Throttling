@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this artifact, please cite the associated ELSA paper."
+title: "ELSA: Lightweight SARSA Prefetch Throttling for Resource-Constrained Embedded Systems"
+type: software
+authors:
+  - family-names: "Kale"
+    given-names: "Tushar Dhananjay"
+  - family-names: "Ghosh"
+    given-names: "Soma N."
+version: "1.0.0"
+date-released: "2026-09-22"
+license: "GPL-3.0-only"
+keywords:
+  - hardware prefetching
+  - reinforcement learning
+  - SARSA
+  - embedded systems
+  - memory hierarchy

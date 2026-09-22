@@ -1,0 +1,16 @@
+.DS_Store
+*.log
+*.o
+*.a
+*.so
+*.dylib
+*.vvp
+*.pyc
+__pycache__/
+build/
+bin/
+logs/
+traces/
+toolchains/
+tmp/
+.cache/

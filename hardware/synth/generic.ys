@@ -1,0 +1,11 @@
+read_verilog -sv hardware/rtl/elsa_controller.sv
+hierarchy -check -top elsa_controller
+
+synth -top elsa_controller
+
+check -assert
+stat
+
+write_rtlil build/hardware/elsa_generic.il
+write_json build/hardware/elsa_generic.json
+write_verilog -noattr build/hardware/elsa_generic_netlist.v

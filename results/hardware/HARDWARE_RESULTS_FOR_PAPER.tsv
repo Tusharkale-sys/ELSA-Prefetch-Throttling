@@ -1,0 +1,17 @@
+Evidence	Target	Metric	Value	Status
+LevelA	RTL	Software/Q24 stress epochs	100000	0 state/action/degree mismatches
+LevelA	RTL	RTL replay epochs	256	0 mismatches on tested trajectory
+LevelA	RTL	Online RTL state	6417 bits / 803 bytes	Supported
+LevelA	Generic_Yosys	Synthesized sequential bits	6404	Supported
+LevelA	Generic_Yosys	Generic cells	45105	Supported
+LevelB	ECP5_85F	Post-route Fmax	3.2 MHz	100 MHz FAIL
+LevelB	ECP5_85F	Combinational resources	16258 / 83640	19.44 percent
+LevelB	ECP5_85F	Flip-flops	6404	7.66 percent
+LevelB	ECP5_85F	DSP	10 / 156	6.41 percent
+LevelB	ECP5_85F	BRAM	0	Supported
+LevelC	Nangate45	Mapped standard cells	30409	Supported
+LevelC	Nangate45	Liberty total cell area	63041.734	Not physical die area
+LevelC	Nangate45	Worst setup slack	-16.489399 ns	VIOLATED
+LevelC	Nangate45	TNS	-30803.826172 ns	VIOLATED
+LevelC	Nangate45	Effective critical period	26.489399 ns	Derived
+LevelC	Nangate45	Estimated pre-layout Fmax	37.750951 MHz	100 MHz FAIL

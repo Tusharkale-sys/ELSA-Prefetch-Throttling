@@ -1,0 +1,7 @@
+read_verilog -sv hardware/rtl/elsa_controller.sv
+hierarchy -check -top elsa_controller
+
+synth_ecp5 -top elsa_controller -json build/hardware/elsa_ecp5_85k.json
+
+check -assert
+stat
