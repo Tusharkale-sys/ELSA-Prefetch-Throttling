@@ -1,0 +1,16 @@
+[
+  "--llc_replacement_type=ship",
+  "--config=config/nopref.ini",
+  "--config=config/pythia.ini",
+  "--l2c_prefetcher_force_prefetch_at_llc=true",
+  "--rob_partition_size=64,128,320",
+  "--rob_frontal_partition_ids=0",
+  "--rob_dorsal_partition_ids=2",
+  "--dram_io_freq=400",
+  "--config=config/hermes_base.ini",
+  "--config=config/ocp_hermes.ini",
+  "--config=config/oogway_dev.ini",
+  "--og_enable=false",
+  "--og_multi_prefetcher_enable=false",
+  "--og_prefetcher_level=2"
+]

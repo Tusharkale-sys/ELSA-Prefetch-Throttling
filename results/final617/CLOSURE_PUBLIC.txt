@@ -1,0 +1,51 @@
+ELSA FINAL617 REPAIRED CAMPAIGN — CANONICAL CLOSURE
+
+Closure timestamp:
+20261008_045454
+
+Canonical result directory:
+<LOCAL_PATH>/elsa_final617_repaired_v3_20261005
+
+Frozen protocol directory:
+<LOCAL_PATH>/final_617_protocol_and_launcher_frozen_v3
+
+Campaign:
+617 / 617 PASS
+0 FAIL
+
+Campaign composition:
+MASTER14       336 / 336
+E32_128         72 / 72
+PROSPECTIVE72   72 / 72
+T5_112         112 / 112
+HELDOUT25       25 / 25
+
+Frozen matrix SHA256:
+1797604b0e24eb4a18ed3b9a5fb360e2434b43d9b3a3a38651c1424d89cbc766
+
+Frozen runner SHA256:
+70dfce02097d7ca5b763c55da2f747181780a76bf9a2a0b5559eb70a3a7d1f8c
+
+Mechanical validation completed before closure:
+- 617/617 PASS status rows
+- 617/617 logs present
+- 617/617 normal ChampSim completion
+- 617/617 50M-instruction measurement windows
+- 617/617 positive IPC
+- matched-unit runtime seeds consistent
+- 592/592 numeric preregistered seeds matched
+- completion marker valid
+- 52/52 unique trace hashes matched
+- 6/6 binary hashes matched
+- no result-dependent reruns
+- no active ChampSim at closure
+
+Scientific status:
+CANONICAL_SCIENTIFIC_ANALYSIS_AUTHORIZED
+
+Rules after closure:
+- no tuning based on FINAL617 results
+- no selective performance reruns
+- no alteration of canonical raw results
+- preserve negative and null findings
+- further work is analysis / presentation only unless separately preregistered

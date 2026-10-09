@@ -1,25 +1,28 @@
-# Reproducibility Status
+# Reproducibility status
 
-## Completed
+**Current public-artifact target:** Final617 + final H7 static-decode realization.
 
-- exact scientific sBerti source selected by SHA256
-- exact frozen ELSA RTL selected by SHA256
-- upstream Berti provenance recorded
-- GPLv3 license preserved
-- clean release directory created outside the research workspace
-- unrelated research projects kept completely separate
-- public-facing README created
+## Synchronized components
 
-## Still Required Before Public Release
+- final repaired NEW5 software,
+- compact Final617 job/closure/provenance records,
+- canonical compact 617-execution IPC ledger,
+- final H7 RTL,
+- compact final-H7 evidence.
 
-- audited reproduction scripts
-- required simulator/configuration files
-- compact frozen result tables
-- hardware validation files
-- absolute-path audit
-- large-file audit
-- secret/private-data audit
-- Git initialization
-- clean repository validation
-- GitHub publication
-- tagged paper artifact release
+## Intentionally not bundled
+
+- benchmark traces whose redistribution is restricted,
+- unrelated thesis/research projects,
+- mutable development checkpoints,
+- large duplicate raw logs when their frozen hashes/provenance are sufficient for audit.
+
+## Integrity
+
+Run:
+
+```bash
+bash scripts/verify_artifact.sh
+```
+
+No simulation is launched by that script.

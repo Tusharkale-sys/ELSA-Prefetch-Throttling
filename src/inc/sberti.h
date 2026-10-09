@@ -24,7 +24,7 @@ using namespace std;
 #define L1D_CURRENT_PAGES_TABLE_ENTRIES      16
 #define L1D_CURRENT_PAGES_TABLE_NUM_BERTI    8
 #define L1D_CURRENT_PAGES_TABLE_NUM_BERTI_PER_ACCESS 4
-#define L1D_BERTI_CTR_MED_HIGH_CONFIDENCE   3
+#define L1D_BERTI_CTR_MED_HIGH_CONFIDENCE   2
 
 #define L1D_PREV_REQUESTS_TABLE_ENTRIES      64
 #define L1D_PREV_REQUESTS_TABLE_MASK         (L1D_PREV_REQUESTS_TABLE_ENTRIES-1)
@@ -43,23 +43,23 @@ using namespace std;
 
 #define L1D_TIME_MASK                        ((1<<16)-1)
 #define L1D_TIME_OVERFLOW                    (1<<16)
-#define L1D_MAX_NUM_BURST_PREFETCHES         4
+#define L1D_MAX_NUM_BURST_PREFETCHES         3
 
 // =====================================================================
 // SMART STRIDE CONSTANTS
 // =====================================================================
 #define STRIDE_SETS     64
 #define STRIDE_WAYS     4
-#define STRIDE_MAX_CONF 7
-#define STRIDE_MAX_DEPTH 8
-#define RECENT_WINDOW_SIZE 32
+#define STRIDE_MAX_CONF 3
+#define STRIDE_MAX_DEPTH 16
+#define RECENT_WINDOW_SIZE 256
 
 // =====================================================================
 // DATA STRUCTURES
 // =====================================================================
 
 #define SB_RL_NUM_STATES      8
-#define SB_RL_NUM_ACTIONS     4
+#define SB_RL_NUM_ACTIONS     5
 #define SB_RL_EPOCH_ACCESSES  4096
 #define SB_RL_TRACK_ENTRIES   64
 #define SB_RL_ALPHA           0.5
@@ -116,11 +116,11 @@ struct SmartStrideEntry {
 class SBertiPrefetcher : public Prefetcher {
 private:
     // Cycle counter (replaces intern_->current_time)
-    uint64_t current_cycle;
 
     // Recent prefetch dedup window
     uint64_t recent_prefetches[RECENT_WINDOW_SIZE];
     int      recent_head;
+    uint32_t cpu_id;
 
     // Berti tables
     CurrentPagesTableEntry   l1d_current_pages_table[L1D_CURRENT_PAGES_TABLE_ENTRIES];
@@ -140,9 +140,10 @@ private:
 
     bool     rl_enabled;
 
+    int      rl_num_actions;
     // Experimental same-mechanism static control.
     // When enabled, cap the natural sBerti depth at one of
-    // the exact SARSA action values {1,2,4,8}.
+    // the supported cap values {0,1,2,4,8}.
     bool     fixed_cap_enabled;
     int      fixed_cap;
 
@@ -164,6 +165,8 @@ private:
     uint64_t rl_natdepth_hist[8];
     uint64_t rl_total_issued;
     uint64_t rl_total_useful;
+
+    // Temporary runtime validation counters.
 
 private:
     // Dedup helpers
@@ -234,9 +237,12 @@ private:
     void     init_stats();
 
 public:
-    SBertiPrefetcher(string type);
+    SBertiPrefetcher(string type, uint32_t cpu_id_arg);
     ~SBertiPrefetcher();
     void invoke_prefetcher(uint64_t pc, uint64_t address, uint8_t cache_hit, uint8_t type, vector<uint64_t> &pref_addr);
+    void cache_fill(uint64_t addr, uint32_t set, uint32_t way,
+                    uint8_t prefetch, uint64_t evicted_addr);
+    void prefetch_complete(uint64_t addr);
     void dump_stats();
     void print_config();
 };

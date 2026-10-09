@@ -1,39 +1,26 @@
-# Public-release sanitization
+# Public provenance sanitization
 
-Only the clean release copy was modified.
+The canonical Final617 campaign remains the frozen local checkpoint used for the paper.
 
-The original frozen research artifacts remain unchanged.
+Some original provenance files contain machine-local absolute filesystem paths. Those paths are not scientifically meaningful and are not required to audit the reported results.
 
-Transformations applied for public portability:
+For the public repository, files containing such paths are published as `_PUBLIC` projections. Only machine-local absolute path strings are replaced with neutral `<LOCAL_PATH>/...` identifiers.
 
-- Broad24 absolute trace paths were replaced by trace filenames; workload identities and SHA256 values were preserved.
-- E32/128 absolute raw-log paths were replaced by relative raw_logs/ filenames; scientific numeric fields were preserved.
-- Yosys scripts were converted from machine-specific absolute paths to repository-relative input/output paths.
-- Public README wording was generalized to avoid naming unrelated private research workspaces.
+The public projections retain the scientific metadata carried by those records, including job identifiers, workload/arm labels, seeds, trace filenames where present, and cryptographic hashes.
 
-workloads_24.tsv original SHA256: c5d758521875e6ea35a31ffac2fbeff952a4fd4a78ef346652629293b9e39ac2
-workloads_24.tsv public SHA256:   fe844103b241d069951f7f70cef342768d13f4aa76e4efe39bb4f7c70ca225cb
+No IPC value, experimental result, controller parameter, hardware result, seed, or hash value is modified by this sanitization.
 
-E32_128_RECORDS.tsv original SHA256: b1f50693e28518af6baf820763257e609f7c2f2e5cdfcc74f55057451405cb77
-E32_128_RECORDS.tsv public SHA256:   5353cf1e1281f2bd1a9a309ad42fa64d0c2f91d74dc5d1dde80a9e9ff8ed8a7f
+The original frozen Final617 closure manifest was independently verified before preparation of this public artifact:
 
-generic.ys original SHA256: b15debdfdb17d0fafe7d2b38bf99f92b925eaeac546feae96712cd2ffcc12b21
-generic.ys public SHA256:   20866a477440d302d8405445a6e2edbf612bbbfdabf2d32511196ef9773ba911
+`a0820a05de5730c64b27a9fe558cd241e2cc2a3882fa4b455660f342ae7cd24c`
 
-synth_ecp5.ys original SHA256: 6d33fef9104d90fb523ab3387d426f669605c24ca0413f49690626bd5a8909e6
-synth_ecp5.ys public SHA256:   224c15151905a3e61939cd046be00328e1d60ffd93c6e6c083edbf3908612461
+## Files projected for public release
 
-## Config whitespace sanitization
+- `results/final617/CLOSURE.txt` → `results/final617/CLOSURE_PUBLIC.txt`
+- `results/final617/FINAL_617_JOB_MATRIX.tsv` → `results/final617/FINAL_617_JOB_MATRIX_PUBLIC.tsv`
+- `provenance/final617/BINARY_PROVENANCE.tsv` → `provenance/final617/BINARY_PROVENANCE_PUBLIC.tsv`
+- `provenance/final617/LOG_FILES_SHA256.txt` → `provenance/final617/LOG_FILES_SHA256_PUBLIC.txt`
+- `provenance/final617/STATUS_FILES_SHA256.txt` → `provenance/final617/STATUS_FILES_SHA256_PUBLIC.txt`
+- `provenance/final617/TRACE_PROVENANCE.tsv` → `provenance/final617/TRACE_PROVENANCE_PUBLIC.tsv`
 
-- Public `oogway_dev.ini` copies had one trailing ASCII space removed from affected lines.
-- Configuration keys and values were not changed.
-- Original frozen research artifacts remain unchanged.
-- Original SHA256: `dd1b89accc3576d70ffb037e002d0c8e8fd58d55482bb9ca087fe5227213f0bc`
-- Public sanitized SHA256: `74ec162670120d6fbca5fc52d28e37b18251ef9a178c69f2e49651d8e1ae2c1b`
-
-## TSV structural whitespace
-
-- `results/fixed_cap/ARM_SUMMARY.tsv` and `results/transfer/T4_ALL25_RESULTS.tsv` retain trailing tab characters where frozen rows contain empty trailing fields.
-- These tabs are part of the TSV column structure and were intentionally not stripped.
-- `.gitattributes` disables Git whitespace warnings only for these two result tables.
-- Scientific table bytes were not modified for this Git policy change.
+The frozen local originals remain the canonical provenance authority; the `_PUBLIC` files are disclosure-safe views intended for repository inspection.

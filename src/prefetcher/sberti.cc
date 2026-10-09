@@ -9,10 +9,11 @@ using namespace std;
 // CONSTRUCTOR / DESTRUCTOR
 // =====================================================================
 
-SBertiPrefetcher::SBertiPrefetcher(string type) : Prefetcher(type) {
-    current_cycle = 0;
+SBertiPrefetcher::SBertiPrefetcher(string type, uint32_t cpu_id_arg) : Prefetcher(type) {
+    cpu_id = cpu_id_arg;
     recent_head = 0;
     current_pref_addr = nullptr;
+
     memset(recent_prefetches, 0, sizeof(recent_prefetches));
     l1d_init_current_pages_table();
     l1d_init_prev_requests_table();
@@ -43,13 +44,36 @@ void SBertiPrefetcher::dump_stats() {
     cout << "sberti_rl_epochs " << rl_epochs << endl;
     cout << "sberti_rl_bw_high_epochs " << rl_bw_high_epochs << endl;
     cout << "sberti_rl_final_degree " << rl_degree << endl;
+    cout << "sberti_rl_num_actions " << rl_num_actions << endl;
     cout << "sberti_rl_last_accuracy " << rl_last_accuracy << endl;
     cout << "sberti_total_prefetch_issued " << rl_total_issued << endl;
     cout << "sberti_total_prefetch_useful " << rl_total_useful << endl;
     double ov = (rl_total_issued > 0) ? ((double)rl_total_useful / (double)rl_total_issued) : 0.0;
     cout << "sberti_overall_accuracy " << ov << endl;
-    for (int d = 0; d < SB_RL_NUM_ACTIONS; d++)
-        cout << "sberti_rl_degree" << (d+1) << "_epochs " << rl_degree_hist[d] << endl;
+
+    static const int rl_stats_cap_map[5] =
+        {1, 2, 4, 8, 0};
+
+    for (int d = 0;
+         d < SB_RL_NUM_ACTIONS;
+         d++) {
+
+        // Legacy output retained for old parsers.
+        cout << "sberti_rl_degree"
+             << (d+1)
+             << "_epochs "
+             << rl_degree_hist[d]
+             << endl;
+
+        // Unambiguous output for T1-T6 study.
+        cout << "sberti_rl_action"
+             << d
+             << "_cap"
+             << rl_stats_cap_map[d]
+             << "_epochs "
+             << rl_degree_hist[d]
+             << endl;
+    }
     for (int d = 0; d < 8; d++)
         cout << "sberti_natdepth" << (d+1) << " " << rl_natdepth_hist[d] << endl;
 }
@@ -66,6 +90,48 @@ void SBertiPrefetcher::rl_init() {
     const char *env = getenv("SBERTI_RL");
     rl_enabled = (env != NULL && atoi(env) == 1);
 
+    // T1-T6 prospective action-space experiment.
+    //
+    // Default = original four-action ELSA.
+    //
+    //   4 -> {1,2,4,8}
+    //   5 -> {1,2,4,8,0}
+    //
+    // OFF is appended as action index 4 so all original
+    // action indices and tie-breaking semantics are preserved.
+    rl_num_actions = 4;
+
+    const char *actions_env =
+        getenv("SBERTI_RL_ACTIONS");
+
+    if (actions_env != NULL) {
+        char *actions_end = NULL;
+
+        long actions_value =
+            strtol(
+                actions_env,
+                &actions_end,
+                10
+            );
+
+        if (actions_env[0] == '\0'
+            || actions_end == NULL
+            || *actions_end != '\0'
+            || !(actions_value == 4
+                 || actions_value == 5)) {
+
+            cerr << "Invalid SBERTI_RL_ACTIONS="
+                 << actions_env
+                 << " (allowed: 4,5)"
+                 << endl;
+
+            exit(1);
+        }
+
+        rl_num_actions =
+            (int)actions_value;
+    }
+
     fixed_cap_enabled = false;
     fixed_cap = 0;
 
@@ -78,13 +144,14 @@ void SBertiPrefetcher::rl_init() {
         if (fixed_env[0] == '\0'
             || fixed_end == NULL
             || *fixed_end != '\0'
-            || !(fixed_value == 1
+            || !(fixed_value == 0
+                 || fixed_value == 1
                  || fixed_value == 2
                  || fixed_value == 4
                  || fixed_value == 8)) {
             cerr << "Invalid SBERTI_FIXED_CAP="
                  << fixed_env
-                 << " (allowed: 1,2,4,8)"
+                 << " (allowed: 0,1,2,4,8)"
                  << endl;
             exit(1);
         }
@@ -136,10 +203,10 @@ int SBertiPrefetcher::rl_get_state(double accuracy) {
 
 int SBertiPrefetcher::rl_select_action(int state) {
     if (SB_RL_EPSILON_PCT > 0 && (rand() % 100) < SB_RL_EPSILON_PCT)
-        return rand() % SB_RL_NUM_ACTIONS;
+        return rand() % rl_num_actions;
     int best = 0;
     double best_q = rl_qtable[state][0];
-    for (int a = 1; a < SB_RL_NUM_ACTIONS; a++) {
+    for (int a = 1; a < rl_num_actions; a++) {
         if (rl_qtable[state][a] > best_q) { best_q = rl_qtable[state][a]; best = a; }
     }
     return best;
@@ -191,7 +258,7 @@ void SBertiPrefetcher::rl_epoch_end() {
     rl_sarsa_update(rl_state, rl_action, reward, next_state, next_action);
     rl_state  = next_state;
     rl_action = next_action;
-    static const int deg_map[4] = {1, 2, 4, 8};
+    static const int deg_map[5] = {1, 2, 4, 8, 0};
     rl_degree = deg_map[next_action];
     rl_degree_hist[next_action]++;
     rl_prev_accuracy = useful_rate;
@@ -705,10 +772,112 @@ void SBertiPrefetcher::stride_operate(uint64_t addr, uint64_t ip, uint8_t cache_
 // MAIN INTERFACE
 // =====================================================================
 
+void SBertiPrefetcher::prefetch_complete(
+    uint64_t addr) {
+
+    // Completion-only notification from an LLC fill.
+    // No Berti training and no victim-page processing occurs here.
+
+    uint64_t current_core_cycle =
+        ::current_core_cycle[cpu_id];
+
+    uint64_t line_addr =
+        addr >> LOG2_BLOCK_SIZE_SB;
+
+    uint64_t page_addr =
+        line_addr >> L1D_PAGE_BLOCKS_BITS;
+
+    uint64_t offset =
+        line_addr & L1D_PAGE_OFFSET_MASK;
+
+    uint64_t pointer_prev =
+        l1d_get_current_pages_entry(
+            page_addr);
+
+    if (pointer_prev >=
+        L1D_CURRENT_PAGES_TABLE_ENTRIES) {
+        return;
+    }
+
+
+    l1d_get_and_set_latency_prev_prefetches_table(
+        pointer_prev,
+        offset,
+        current_core_cycle);
+}
+
+void SBertiPrefetcher::cache_fill(uint64_t addr,
+                                  uint32_t set,
+                                  uint32_t way,
+                                  uint8_t prefetch,
+                                  uint64_t evicted_addr) {
+    (void)set;
+    (void)way;
+    (void)prefetch;
+
+    // Older evaluation fork: maintain the same software event
+    // counter domain used by invoke_prefetcher().
+    uint64_t current_core_cycle = ::current_core_cycle[cpu_id];
+
+    uint64_t line_addr = addr >> LOG2_BLOCK_SIZE_SB;
+    uint64_t page_addr = line_addr >> L1D_PAGE_BLOCKS_BITS;
+    uint64_t offset = line_addr & L1D_PAGE_OFFSET_MASK;
+
+    uint64_t pointer_prev =
+        l1d_get_current_pages_entry(page_addr);
+
+    if (pointer_prev < L1D_CURRENT_PAGES_TABLE_ENTRIES) {
+        uint64_t pref_latency =
+            l1d_get_and_set_latency_prev_prefetches_table(
+                pointer_prev, offset, current_core_cycle);
+
+        uint64_t demand_latency =
+            l1d_get_latency_prev_requests_table(
+                pointer_prev, offset, current_core_cycle);
+
+        // DPC4/Berti fill-path fallback:
+        // when no prefetch latency exists, use demand latency.
+        if (pref_latency == 0) {
+            pref_latency = demand_latency;
+        }
+
+        if (demand_latency != 0) {
+
+            int b[L1D_CURRENT_PAGES_TABLE_NUM_BERTI_PER_ACCESS];
+
+            l1d_get_berti_prev_requests_table(
+                pointer_prev,
+                offset,
+                current_core_cycle -
+                    (pref_latency + demand_latency),
+                b);
+
+            for (int i = 0;
+                 i < L1D_CURRENT_PAGES_TABLE_NUM_BERTI_PER_ACCESS;
+                 i++) {
+                if (b[i] == 0)
+                    break;
+
+                assert(abs(b[i]) < L1D_PAGE_BLOCKS);
+                l1d_add_berti_current_pages_table(
+                    pointer_prev, b[i]);
+            }
+        }
+    }
+
+    uint64_t victim_index =
+        l1d_get_current_pages_entry(
+            evicted_addr >> LOG2_PAGE_SIZE);
+
+    if (victim_index < L1D_CURRENT_PAGES_TABLE_ENTRIES) {
+        l1d_record_current_page(victim_index);
+        l1d_remove_current_table_entry(victim_index);
+    }
+}
+
 void SBertiPrefetcher::invoke_prefetcher(uint64_t pc, uint64_t address, uint8_t cache_hit, uint8_t type, vector<uint64_t> &pref_addr) {
     // Increment our software cycle counter
-    current_cycle++;
-    uint64_t current_core_cycle = current_cycle;
+    uint64_t current_core_cycle = ::current_core_cycle[cpu_id];
 
     // Point issue_prefetch at the current pref_addr vector
     current_pref_addr = &pref_addr;

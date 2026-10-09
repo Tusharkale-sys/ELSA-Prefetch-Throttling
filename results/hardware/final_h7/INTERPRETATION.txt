@@ -1,0 +1,86 @@
+ELSA TECS FINAL HARDWARE CAMPAIGN INTERPRETATION
+================================================
+
+STATUS=HARDWARE_HARDENING_COMPLETE
+
+AUTHORITATIVE_FINAL_IMPLEMENTATION=
+H7_STATIC_DECODE
+
+CORRECTNESS:
+- 256 frozen replay epochs passed.
+- External trajectory mismatch count = 0.
+- Q-value mismatch count = 0.
+- Cached-argmax mismatch count = 0.
+- Expected-output mismatch count = 0.
+- Controlled-OFF action runtime coverage passed.
+- Action index 4 -> degree 0 was exercised 194 times.
+- Maximum replay update latency = 111 cycles.
+- Maximum continuous-access-stress update latency = 111 cycles.
+- Eight minimum-spacing stress epoch boundaries passed.
+- Bit-exact deferred-Q equivalence passed.
+
+IMPLEMENTATION EVOLUTION:
+1. Frozen original NEW5:
+   one-cycle monolithic SARSA/update structure.
+
+2. H3B:
+   epoch-boundary policy action retained immediately;
+   expensive SARSA update moved to a background multicycle
+   engine with exact cached argmax repair.
+
+3. H7:
+   background variable pending_state Q-row/cache addressing
+   replaced with explicit static row decode.
+
+FINAL MATCHED FPGA RESULT:
+- Original matched NEW5 routed Fmax = 2.89 MHz.
+- H3B routed Fmax = 32.43 MHz.
+- Final H7 routed Fmax = 33.88 MHz.
+- H7/H3B matched improvement = 4.471169%.
+- H7/original-NEW5 speedup = 11.723183391x.
+- Final H7 TRELLIS_COMB = 20712.
+- Final H7 TRELLIS_FF = 8623.
+- Final H7 MULT18X18D = 11.
+- Final H7 DP16KD = 0.
+
+100-MHZ TARGET:
+NOT MET.
+
+This must be reported explicitly.
+
+The result supports a substantial implementation-level timing
+recovery while preserving exact controller semantics.
+
+It does NOT support a 100-MHz timing-closure claim.
+
+SCIENTIFIC POLICY:
+UNCHANGED.
+
+ARCHITECTURAL PERFORMANCE RESULTS:
+UNCHANGED.
+
+T1--T6:
+UNCHANGED.
+
+T5:
+NOT REOPENED.
+
+FINAL H7 ADOPTION:
+YES.
+
+FURTHER RTL TIMING OPTIMIZATION:
+NOT ALLOWED UNDER THE PREREGISTERED H7 STOP RULE.
+
+PAPER-SAFE INTERPRETATION:
+A behavior-preserving epoch-decoupled implementation eliminates
+the original monolithic learning path from the epoch-critical
+datapath.  Subsequent static decoding of the background Q-row
+access provides an additional routed timing improvement.
+
+Across the matched ECP5 flow, the final implementation improves
+routed frequency by approximately 11.7x relative to the original
+NEW5 RTL while reducing combinational utilization, at the cost
+of additional state registers.
+
+The final design reaches 33.88 MHz rather than the preregistered
+100-MHz target; this limitation must remain visible in the paper.
