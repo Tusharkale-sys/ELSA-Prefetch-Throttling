@@ -14,4 +14,4 @@ The upstream Berti artifact is distributed under GNU GPL version 3.
 
 The complete upstream repository is intentionally not vendored into this clean ELSA release.
 
-The final reproduction instructions will document how to obtain the required upstream simulator environment.
+Reproduction guidance is provided in `docs/REPRODUCIBILITY.md`; this repository records the upstream simulator identity without vendoring the complete upstream tree.
