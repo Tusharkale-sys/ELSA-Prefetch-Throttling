@@ -1,0 +1,45 @@
+{
+  "status": "LOCALLY_REPRODUCED_NOT_PUBLICLY_RELEASED",
+  "toolchain": "Icarus Verilog 13.0",
+  "rtl_compilations": 1,
+  "rtl_replays": 1,
+  "automatic_retries": 0,
+  "expected_results": {
+    "H4_REPLAY_VECTOR_COUNT": 256,
+    "H4_REPLAY_EXTERNAL_MISMATCH_COUNT": 0,
+    "H4_REPLAY_Q_MISMATCH_COUNT": 0,
+    "H4_REPLAY_CACHE_MISMATCH_COUNT": 0,
+    "H4_REPLAY_EXPECTED_MISMATCH_COUNT": 0,
+    "H4_ACTION4_DEGREE0_COVERAGE_COUNT": 194,
+    "H4_REPLAY_MAX_UPDATE_LATENCY": 111,
+    "H4_STRESS_BOUNDARY_COUNT": 8,
+    "H4_STRESS_EXTERNAL_MISMATCH_COUNT": 0,
+    "H4_STRESS_Q_MISMATCH_COUNT": 0,
+    "H4_STRESS_CACHE_MISMATCH_COUNT": 0,
+    "H4_STRESS_MAX_UPDATE_LATENCY": 111,
+    "H4_TOTAL_MISMATCH_COUNT": 0
+  },
+  "required_pass_markers": [
+    "H4_EXTERNAL_TRAJECTORY_EQUIVALENCE",
+    "H4_DEFERRED_Q_BIT_EXACT_EQUIVALENCE",
+    "H4_CACHED_ARGMAX_EQUIVALENCE",
+    "H4_ACTION4_DEGREE0_RUNTIME_COVERAGE",
+    "H4_UPDATE_LATENCY_BOUND",
+    "H4_CONTINUOUS_ACCESS_STRESS",
+    "H4_BIT_EXACT_DEFERRED_EQUIVALENCE"
+  ],
+  "source_hashes": {
+    "src/elsa_controller_ref.sv": "f3db118d9494ec868df659fe5ffe72ff8478fa267ebee9ddd10337270e5391c2",
+    "src/elsa_controller_opt_testname.sv": "d375bfa8b1dffaf70129a92491d869ea2c45dd4dea0547f25eff537f3b9a6a26",
+    "tb/tb_h7c.sv": "122eee267e6f9a3b48f4cb3bda9966512c1ac26cfd56492f75c45612a8498e4f",
+    "input/replay_vectors.txt": "642281aa8934097acd1b09317c3df1ddc971b61d1d61cd87e98ee9c2bed27451"
+  },
+  "compiled_binary_sha256": "fd7d216f4e89e34a618df2d24a124e8dd35f372b128d228c51aaee0bd371746f",
+  "original_manifest_sha256": "6e2afb5acb86193a68f15fca9332ba8a1473fbe906897e714de41e61cfda7170",
+  "independent_receipt_sha256": "42df5cd509cd1902576bd7a7b00cb9b27909a8574855858061249e544024dcc7",
+  "independent_replay_log_sha256": "dea3d38fd7670c20cedd9c57f2bb0f271c7cb6675059843a57027758d049cc13",
+  "independent_compile_log_sha256": "165c785bf8880fbd2c3696d50f212aea480af5d6564751269a13f07ef02cd953",
+  "exhaustive_formal_equivalence": false,
+  "target_100mhz_met": false,
+  "public_release_completed": false
+}
